@@ -1,0 +1,158 @@
+flowchart TB
+    %% Core Architecture with Design Patterns
+    subgraph "Core Framework (SOLID Principles)"
+        subgraph "S: Single Responsibility"
+            configManager["Configuration Manager<br>(Singleton Pattern)"]
+            reporter["Reporter<br>(Observer Pattern)"]
+            logger["Logger<br>(Decorator Pattern)"]
+        end
+        
+        subgraph "O: Open/Closed"
+            basePage["BasePage<br>(Template Method Pattern)"]
+            baseComponent["BaseComponent<br>(Composite Pattern)"]
+            baseTest["BaseTest<br>(Strategy Pattern)"]
+        end
+        
+        subgraph "L: Liskov Substitution"
+            pageInterfaces["Page Interfaces<br>(Contract Specifications)"]
+            serviceInterfaces["Service Interfaces<br>(Contract Specifications)"]
+        end
+        
+        subgraph "I: Interface Segregation"
+            uiActions["UI Action Interfaces<br>(Role-based)"]
+            apiActions["API Action Interfaces<br>(Role-based)"]
+            dataActions["Data Action Interfaces<br>(Role-based)"]
+        end
+        
+        subgraph "D: Dependency Injection"
+            diContainer["DI Container<br>(Inversion of Control)"]
+            fixtures["Test Fixtures<br>(Factory Pattern)"]
+        end
+    end
+    
+    %% Test Layer with Patterns
+    subgraph "Test Implementation"
+        subgraph "Page Objects (Facade Pattern)"
+            loginPage["LoginPage"]
+            dashboardPage["DashboardPage"]
+            productPage["ProductPage"]
+        end
+        
+        subgraph "Components (Bridge Pattern)"
+            navMenu["NavigationMenu"]
+            dataTable["DataTable"]
+            formElement["Form"]
+        end
+        
+        subgraph "API Clients (Adapter Pattern)"
+            restClient["RESTClient"]
+            graphqlClient["GraphQLClient"]
+        end
+        
+        subgraph "Test Data (Builder Pattern)"
+            dataBuilder["TestDataBuilder"]
+            dataFactories["EntityFactories"]
+            cleanupManager["CleanupManager<br>(Memento Pattern)"]
+        end
+    end
+    
+    %% Testing Services
+    subgraph "Testing Services"
+        subgraph "Core Services"
+            interceptorService["Interceptor Service<br>(Proxy Pattern)"]
+            mswService["MSW Service<br>(Mock Pattern)"]
+            visualService["Visual Testing Service<br>(Command Pattern)"]
+            a11yService["Accessibility Service"]
+            perfService["Performance Service"]
+        end
+        
+        subgraph "Advanced Services"
+            aiSelector["AI Selector Service<br>(Strategy Pattern)"]
+            testImpactService["Test Impact Analysis<br>(Observer Pattern)"]
+            securityService["Security Testing Service"]
+        end
+    end
+    
+    %% Infrastructure
+    subgraph "Infrastructure (Hexagonal Architecture)"
+        subgraph "Execution Ports"
+            local["Local Runner"]
+            ci["CI/CD Pipeline<br>(Chain of Responsibility)"]
+            docker["Docker Container"]
+            cloud["Cloud Execution"]
+        end
+        
+        subgraph "Reporting Ports"
+            htmlReporter["HTML Reporter"]
+            allureReporter["Allure Reporter"]
+            customReporter["Custom Reporter<br>(Visitor Pattern)"]
+        end
+        
+        subgraph "Configuration Ports"
+            envConfig["Environment Config"]
+            browserConfig["Browser Config"]
+            testConfig["Test Config"]
+        end
+    end
+    
+    %% External Systems
+    subgraph "External Systems"
+        browsers["Multiple Browsers"]
+        devices["Device Profiles"]
+        aut["Application Under Test"]
+        realAPI["Real APIs"]
+    end
+    
+    %% Core connections
+    diContainer --> configManager
+    diContainer --> basePage
+    diContainer --> fixtures
+    fixtures --> dataBuilder
+    basePage --> pageInterfaces
+    restClient --> serviceInterfaces
+    cleanupManager --> dataBuilder
+    
+    %% Page Object connections
+    pageInterfaces --> loginPage
+    pageInterfaces --> dashboardPage
+    pageInterfaces --> productPage
+    baseComponent --> navMenu
+    baseComponent --> dataTable
+    baseComponent --> formElement
+    
+    %% Service connections
+    loginPage --> uiActions
+    dashboardPage --> uiActions
+    restClient --> apiActions
+    dataBuilder --> dataActions
+    
+    %% Infrastructure connections
+    baseTest --> local
+    local --> ci
+    ci --> docker
+    docker --> cloud
+    baseTest --> reporter
+    reporter --> htmlReporter
+    reporter --> allureReporter
+    reporter --> customReporter
+    
+    %% Service and testing connections
+    interceptorService --> restClient
+    mswService --> restClient
+    visualService --> basePage
+    a11yService --> basePage
+    perfService --> basePage
+    aiSelector --> basePage
+    testImpactService --> ci
+    securityService --> restClient
+    
+    %% External connections
+    uiActions --> browsers
+    uiActions --> devices
+    browsers --> aut
+    devices --> aut
+    apiActions --> realAPI
+    mswService -. intercepts .-> realAPI
+    fixtures --> envConfig
+    fixtures --> browserConfig
+    fixtures --> testConfig

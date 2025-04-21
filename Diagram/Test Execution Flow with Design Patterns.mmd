@@ -1,0 +1,35 @@
+---
+config:
+  theme: default
+---
+sequenceDiagram
+    participant TC as Test Context
+    participant DI as DI Container
+    participant Fixture as Test Fixtures
+    participant Page as Page Objects
+    participant Service as Services
+    participant API as API Client
+    participant AUT as Application
+    participant Report as Reporter
+    TC->>DI: Create test scope
+    DI->>Fixture: Create test fixtures
+    Fixture->>DI: Resolve dependencies
+    DI-->>Fixture: Return configured instances
+    Fixture-->>TC: Provide test context
+    TC->>Page: Create page object
+    Page->>Page: Initialize (Template Method)
+    TC->>Service: Setup interceptor (Proxy Pattern)
+    Service->>API: Register request handlers
+    TC->>Fixture: Get test data (Factory Pattern)
+    Fixture->>TC: Return test data with cleanup
+    TC->>Page: Execute UI interactions
+    Page->>AUT: Browser interactions
+    TC->>API: Verify backend state
+    API->>AUT: API requests
+    AUT-->>API: Response
+    API-->>TC: Validation result
+    TC->>Report: Notify test completion
+    Page->>Report: Attach screenshots/videos
+    API->>Report: Log API responses
+    TC->>Fixture: Execute data cleanup
+    Fixture->>AUT: Reset application state

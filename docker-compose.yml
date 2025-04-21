@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./test-results:/app/test-results
+    environment:
+      - NODE_ENV=test
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:3000/api}
+      - HEADLESS=${HEADLESS:-true}
+      - SLOW_MO=${SLOW_MO:-0}
+      - DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT:-30000}
+      - SCREENSHOTS_DIR=/app/test-results/screenshots
+      - VIDEOS_DIR=/app/test-results/videos
+      - TRACES_DIR=/app/test-results/traces
+      - REPORTS_DIR=/app/test-results/reports
+      - CAPTURE_VIDEO=${CAPTURE_VIDEO:-false}
+      - CAPTURE_TRACE=${CAPTURE_TRACE:-false}
+      - CAPTURE_SCREENSHOT_ON_FAILURE=${CAPTURE_SCREENSHOT_ON_FAILURE:-true}
+    command: test
+
+  test-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./test-results:/app/test-results
+    environment:
+      - NODE_ENV=test
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:3000/api}
+      - HEADLESS=false
+      - SLOW_MO=${SLOW_MO:-0}
+      - DEFAULT_TIMEOUT=${DEFAULT_TIMEOUT:-30000}
+      - SCREENSHOTS_DIR=/app/test-results/screenshots
+      - VIDEOS_DIR=/app/test-results/videos
+      - TRACES_DIR=/app/test-results/traces
+      - REPORTS_DIR=/app/test-results/reports
+      - CAPTURE_VIDEO=${CAPTURE_VIDEO:-true}
+      - CAPTURE_TRACE=${CAPTURE_TRACE:-true}
+      - CAPTURE_SCREENSHOT_ON_FAILURE=${CAPTURE_SCREENSHOT_ON_FAILURE:-true}
+    command: test:ui
+
+  lint:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: lint
+
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: build
+
+  chromium:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./test-results:/app/test-results
+    environment:
+      - NODE_ENV=test
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:3000/api}
+      - HEADLESS=${HEADLESS:-true}
+      - DEFAULT_BROWSER_TYPE=chromium
+      - SCREENSHOTS_DIR=/app/test-results/screenshots
+      - VIDEOS_DIR=/app/test-results/videos
+      - TRACES_DIR=/app/test-results/traces
+      - REPORTS_DIR=/app/test-results/reports
+    command: test -- --project=chromium
+
+  firefox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./test-results:/app/test-results
+    environment:
+      - NODE_ENV=test
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:3000/api}
+      - HEADLESS=${HEADLESS:-true}
+      - DEFAULT_BROWSER_TYPE=firefox
+      - SCREENSHOTS_DIR=/app/test-results/screenshots
+      - VIDEOS_DIR=/app/test-results/videos
+      - TRACES_DIR=/app/test-results/traces
+      - REPORTS_DIR=/app/test-results/reports
+    command: test -- --project=firefox

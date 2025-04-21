@@ -1,0 +1,173 @@
+classDiagram
+    %% Interfaces (Supporting Interface Segregation Principle)
+    class IPage {
+        <<interface>>
+        +navigate(url: string): Promise
+        +waitForLoad(): Promise
+    }
+    
+    class IComponent {
+        <<interface>>
+        +isVisible(): Promise
+        +waitForVisible(): Promise
+    }
+    
+    class IApiClient {
+        <<interface>>
+        +request(method: string, url: string, data?: any): Promise
+    }
+    
+    class IReporter {
+        <<interface>>
+        +onTestStart(test: TestInfo): void
+        +onTestEnd(test: TestInfo, result: TestResult): void
+    }
+    
+    class ITestData {
+        <<interface>>
+        +create(options?: any): Promise
+        +cleanup(): Promise
+    }
+    
+    %% Abstract Base Classes (Template Method Pattern)
+    class BasePage {
+        <<abstract>>
+        -page: Page
+        #config: ConfigManager
+        +constructor(page: Page, config: ConfigManager)
+        +navigate(): Promise
+        +waitForPageLoad(): Promise
+        #getBaseUrl(): string
+    }
+    
+    class BaseComponent {
+        <<abstract>>
+        -page: Page
+        -locator: Locator
+        +constructor(page: Page, selector: string)
+        +isVisible(): Promise
+        +waitForVisible(): Promise
+        #highlight(): Promise
+    }
+    
+    class BaseTest {
+        <<abstract>>
+        #page: Page
+        #request: APIRequestContext
+        #reporter: IReporter
+        +beforeEach(): Promise
+        +afterEach(): Promise
+        #createTestData(factory: ITestDataFactory, options?: any): Promise
+    }
+    
+    %% Concrete Implementations
+    class LoginPage {
+        -usernameInput: Locator
+        -passwordInput: Locator
+        -loginButton: Locator
+        +login(username: string, password: string): Promise
+        +isLoggedIn(): Promise
+    }
+    
+    class DashboardPage {
+        -navigation: NavigationMenu
+        -userInfo: UserInfoPanel
+        +getUserInfo(): Promise
+        +navigateTo(section: string): Promise
+    }
+    
+    class RestApiClient {
+        -request: APIRequestContext
+        -baseUrl: string
+        -authManager: AuthManager
+        +constructor(request: APIRequestContext, config: ConfigManager)
+        +get(endpoint: string, params?: object): Promise
+        +post(endpoint: string, data: object): Promise
+        +put(endpoint: string, data: object): Promise
+        +delete(endpoint: string): Promise
+    }
+    
+    %% Services and Utilities (Demonstrating Single Responsibility)
+    class ConfigManager {
+        -static instance: ConfigManager
+        -environment: string
+        -config: ConfigData
+        -constructor()
+        +static getInstance(): ConfigManager
+        +getBaseUrl(): string
+        +getApiUrl(): string
+        +getCredentials(type: string): Credentials
+        +getBrowserOptions(): BrowserOptions
+    }
+    
+    class TestDataBuilder {
+        -factories: Map
+        -createdEntities: Array
+        +registerFactory(name: string, factory: ITestDataFactory): void
+        +create(type: string, overrides?: object): Promise
+        +createMany(type: string, count: number): Promise
+        +cleanup(): Promise
+    }
+    
+    class AllureReporter {
+        -reporter: AllureInterface
+        +constructor()
+        +onTestStart(test: TestInfo): void
+        +onTestEnd(test: TestInfo, result: TestResult): void
+        +attachScreenshot(name: string, screenshot: Buffer): void
+        +setTestDescription(description: string): void
+    }
+    
+    class MockServiceHandler {
+        -page: Page
+        -mockDefinitions: Array
+        +constructor(page: Page)
+        +addMock(definition: MockDefinition): void
+        +activateMocks(): Promise
+        +reset(): Promise
+    }
+    
+    %% Dependency Injection Container (D in SOLID)
+    class DIContainer {
+        -services: Map
+        -factories: Map
+        +register(token: string, instance: any): void
+        +registerFactory(token: string, factory: Function): void
+        +resolve(token: string): any
+        +createScope(): DIContainer
+    }
+    
+    %% Test Fixtures (Factory Pattern)
+    class TestFixtures {
+        -container: DIContainer
+        +constructor(container: DIContainer)
+        +authenticated(): Promise
+        +withMockApi(): Promise
+        +withTestData(dataType: string): Promise
+    }
+    
+    %% Relationships
+    IPage <|.. BasePage
+    IComponent <|.. BaseComponent
+    IApiClient <|.. RestApiClient
+    IReporter <|.. AllureReporter
+    
+    BasePage <|-- LoginPage
+    BasePage <|-- DashboardPage
+    
+    BasePage o-- ConfigManager
+    BaseTest o-- IReporter
+    BaseTest o-- ITestData
+    
+    DIContainer --> ConfigManager : creates
+    DIContainer --> RestApiClient : creates
+    DIContainer --> BasePage : creates
+    DIContainer --> TestDataBuilder : creates
+    DIContainer --> AllureReporter : creates
+    
+    TestFixtures --> DIContainer : uses
+    
+    LoginPage *-- BaseComponent : contains
+    DashboardPage *-- BaseComponent : contains
+    
+    TestDataBuilder o-- ITestData : manages
