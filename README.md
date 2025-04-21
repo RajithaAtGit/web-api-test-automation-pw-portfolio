@@ -292,14 +292,6 @@ The framework development is organized into three phases:
 - Comprehensive performance testing including Core Web Vitals
 - Enterprise documentation with architecture diagrams and best practices
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## Conclusion
 
 This test automation framework provides a solid foundation for test automation with Playwright and TypeScript. It follows SOLID principles and design patterns to ensure maintainability and extensibility. The framework supports UI testing, API testing, and hybrid testing approaches, with comprehensive reporting and test data management.
